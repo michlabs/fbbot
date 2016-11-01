@@ -1,5 +1,5 @@
 # fbbot
-FBbot - Facebook Messenger SDK for Go
+FBbot - Facebook Messenger bot framework for Humans, for Go
 
 # Document
 - Read example code in the example directory
