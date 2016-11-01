@@ -24,3 +24,4 @@ _testmain.go
 *.prof
 
 TODO.md
+*.DS_Store
