@@ -206,6 +206,13 @@ func (b *Bot) process(messages []interface{}) {
 	}
 }
 
+// TODO: Refactor
+func (b *Bot) Process(message interface{}) {
+	var messages []interface{}
+	messages = append(messages, message)
+	b.process(messages)
+}
+
 // TODO: Support other message types
 func (b *Bot) Send(r User, m interface{}) error {
 	switch m := m.(type) {
@@ -215,6 +222,8 @@ func (b *Bot) Send(r User, m interface{}) error {
 		return b.sendImageMessage(r, m)
 	case *ButtonMessage:
 		return b.sendButtonMessage(r, m)
+	case *GenericMessage:
+		return b.sendGenericMessage(r, m)
 	default:
 		return errors.New("unknown message type")
 	}
@@ -277,6 +286,29 @@ func (b *Bot) sendButtonMessage(r User, m *ButtonMessage) error {
 	attachment["payload"] = payload
 
 	data["notification_type"] = m.Noti
+	data["recipient"] = map[string]string{"id": r.ID}
+	data["message"] = map[string]interface{}{"attachment": attachment}
+
+	_, err := b.httppost(SendAPIEndpoint, data)
+	if err != nil {
+		b.Logger.WithFields(logrus.Fields{"data": data, "error": err}).Error("Failed to send message")
+		return err
+	}
+
+	return nil
+}
+
+func (b *Bot) sendGenericMessage(r User, m *GenericMessage) error {
+	payload := make(map[string]interface{})
+	payload["template_type"] = "generic"
+	payload["elements"] = m.Bubbles
+
+	attachment := make(map[string]interface{})
+	attachment["type"] = "template"
+	attachment["payload"] = payload
+
+	data := make(map[string]interface{})
+	data["notification_type"] = m.Noti 
 	data["recipient"] = map[string]string{"id": r.ID}
 	data["message"] = map[string]interface{}{"attachment": attachment}
 

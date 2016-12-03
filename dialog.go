@@ -1,11 +1,16 @@
 package fbbot
 
 import (
-	// log "github.com/Sirupsen/logrus"
+	"fmt"
+	"io/ioutil"
+	log "github.com/Sirupsen/logrus"
 )
 
 // Event represents event triggered by state
 type Event string
+
+const ResetEvent Event = "reset"
+const NilEvent Event = ""
 
 type State interface {
 	Enter(*Bot, *Message) Event
@@ -14,32 +19,12 @@ type State interface {
 }
 
 // BaseState is base struct for State
-type BaseState struct {}
+type BaseState struct {
+	Name string
+}
 func (s BaseState) Enter(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
 func (s BaseState) Process(bot *Bot, msg *Message) (e Event) { return e } // Do nothing
 func (s BaseState) Leave(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
-
-// manager represents a dialog manager
-type manager struct {
-	// maps an user's ID to pointer of his current dialog
-	currentDialog map[string]*Dialog
-}
-
-// NewDialogManager returns pointer to a new dialog manager
-func NewDialogManager() *manager {
-	return &manager{currentDialog: make(map[string]*Dialog)}
-}
-
-// SetDialog sets current dialog for user
-func (m *manager) SetDialog(user_id string, d *Dialog) {
-	m.currentDialog[user_id] = d
-}
-
-// GetDialog returns pointer to current dialog of the user
-// Returns nil if user is not in any dialog
-func (m *manager) GetDialog(user_id string) *Dialog {
-	return m.currentDialog[user_id]
-}
 
 type Dialog struct {
 	BeginState State
@@ -57,6 +42,30 @@ func NewDialog() *Dialog {
 	return &d
 }
 
+func (d *Dialog) Render() {
+	nodes := make(map[State]bool)
+	var edgesHTML string = ""
+	for src, values := range d.transMap {
+		nodes[src] = true
+		for event, dst := range values {
+			edgesHTML = edgesHTML + fmt.Sprintf("g.setEdge(\"%s\", \"%s\", {label: \"%s\" });\n", src, dst, event)
+			nodes[dst] = true
+		}
+	}
+
+	var nodesHTML string = `var states = [`
+	for node, _ := range nodes {
+		nodesHTML = nodesHTML + fmt.Sprintf(`"%s", `, node)
+	}
+	nodesHTML = nodesHTML + `];`
+
+	html := fmt.Sprintf(TEMPLATE, nodesHTML, edgesHTML, d.BeginState, d.EndState)
+	err := ioutil.WriteFile("dialog.html", []byte(html), 0644)
+    if err != nil {
+        log.Error("Could not write dialog.html file")
+    }
+}
+
 func (d *Dialog) AddTransition(src State, event Event, dst State) {
 	_, exist := d.transMap[src]
 	if !exist {
@@ -66,9 +75,13 @@ func (d *Dialog) AddTransition(src State, event Event, dst State) {
 }
 
 func (d *Dialog) Handle(bot *Bot, msg *Message) {
+	if d.BeginState == nil || d.EndState == nil {
+		log.Fatal("BeginState and EndState are not set.")
+	}
+
 	var event Event
 	state := d.getState(msg.Sender.ID)
-	if state == nil { // Start dialog
+	if state == nil || state == d.EndState {
 		d.setState(msg.Sender.ID, d.BeginState)
 		state = d.getState(msg.Sender.ID)
 		event = state.Enter(bot, msg)
@@ -79,6 +92,11 @@ func (d *Dialog) Handle(bot *Bot, msg *Message) {
 }
 
 func (d *Dialog) transition(bot *Bot, msg *Message, src State, event Event) {
+	if event == ResetEvent {
+		d.resetState(msg.Sender.ID)
+		return
+	}
+	
 	dst, exist := d.transMap[src][event]
 	if !exist {
 		return
@@ -86,10 +104,6 @@ func (d *Dialog) transition(bot *Bot, msg *Message, src State, event Event) {
 	src.Leave(bot, msg)
 	d.setState(msg.Sender.ID, dst)
 	event = d.getState(msg.Sender.ID).Enter(bot, msg)
-	if dst == d.EndState {
-		d.resetState(msg.Sender.ID)
-		return
-	}
 	d.transition(bot, msg, dst, event)
 }
 

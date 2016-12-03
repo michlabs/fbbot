@@ -57,6 +57,10 @@ func (m *ButtonMessage) AddPostbackButton(title, payload string) {
 	m.Buttons = append(m.Buttons, b)
 }
 
+// TODO
+// func (m *ButtonMessage) AddButton(b Button) {}
+// func (m *ButtonMessage) AddButtons(bs []Button) {}
+
 // Button
 type Button struct {
 	Type    string `json:"type"` // web_url or postback
@@ -87,7 +91,7 @@ type GenericMessage struct {
 	// Text is text content of the message
 	// must be UTF-8, 320 character limit
 	// not required
-	Text string
+	Text string // TODO: ? nothing to do with this field?
 	Noti string
 
 	Bubbles []Bubble
@@ -103,23 +107,23 @@ func NewGenericMessage() *GenericMessage {
 type Bubble struct {
 	// Title is title of the bubble
 	// required
-	Title string
+	Title string `json:"title"`
 
 	// SubTitle is buble subtitle
 	// not required
-	SubTitle string
+	SubTitle string `json:"subtitle"`
 
 	// ItemURL is URL opened when bubble is tapped
 	// not required
-	ItemURL string
+	ItemURL string `json:"item_url"`
 
 	// ImageURL is URL of bubble image
 	// not required
-	ImageURL string
+	ImageURL string `json:"image_url"`
 
 	// Buttons are buttons that appear as call-to-actions
 	// not required
-	Buttons []Button
+	Buttons []Button `json:"buttons"`
 }
 
 // TODO: Send image from file: https://developers.facebook.com/docs/messenger-platform/send-api-reference/image-attachment
