@@ -27,15 +27,17 @@ func (s BaseState) Process(bot *Bot, msg *Message) (e Event) { return e } // Do 
 func (s BaseState) Leave(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
 
 type Dialog struct {
-	BeginState State
-	EndState   State
+	beginState State
+	endState   State
 
+	states map[State]bool // stores all states of this dialog
 	stateMap map[string]State // maps an user ID to his current state
 	transMap map[State]map[Event]State
 }
 
 func NewDialog() *Dialog {
 	var d Dialog
+	d.states = make(map[State]bool)
 	d.stateMap = make(map[string]State)
 	d.transMap = make(map[State]map[Event]State)
 
@@ -59,11 +61,25 @@ func (d *Dialog) Render() {
 	}
 	nodesHTML = nodesHTML + `];`
 
-	html := fmt.Sprintf(TEMPLATE, nodesHTML, edgesHTML, d.BeginState, d.EndState)
+	html := fmt.Sprintf(TEMPLATE, nodesHTML, edgesHTML, d.beginState, d.endState)
 	err := ioutil.WriteFile("dialog.html", []byte(html), 0644)
     if err != nil {
         log.Error("Could not write dialog.html file")
     }
+}
+
+func (d *Dialog) AddStates(states ...State) {
+	for _, state := range states {
+		d.states[state] = true
+	}
+}
+
+func (d *Dialog) SetBeginState(s State) {
+	d.beginState = s
+}
+
+func (d *Dialog) SetEndState(s State) {
+	d.endState = s
 }
 
 func (d *Dialog) AddTransition(src State, event Event, dst State) {
@@ -74,15 +90,21 @@ func (d *Dialog) AddTransition(src State, event Event, dst State) {
 	d.transMap[src][event] = dst
 }
 
+func (d *Dialog) AddGlobalTransition(event Event, dst State) {
+	for state := range d.states {
+		d.AddTransition(state, event, dst)
+	}
+}
+
 func (d *Dialog) Handle(bot *Bot, msg *Message) {
-	if d.BeginState == nil || d.EndState == nil {
+	if d.beginState == nil || d.endState == nil {
 		log.Fatal("BeginState and EndState are not set.")
 	}
 
 	var event Event
 	state := d.getState(msg.Sender.ID)
-	if state == nil || state == d.EndState {
-		d.setState(msg.Sender.ID, d.BeginState)
+	if state == nil || state == d.endState {
+		d.setState(msg.Sender.ID, d.beginState)
 		state = d.getState(msg.Sender.ID)
 		event = state.Enter(bot, msg)
 	} else {
