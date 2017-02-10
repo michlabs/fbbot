@@ -34,10 +34,12 @@ type File struct {
 }
 
 type Location struct {
-	Coordinates struct {
-		Lat  float64
-		Long float64
-	}
+	Coordinates Coordinates
+}
+
+type Coordinates struct {
+	Lat  float64
+	Long float64
 }
 
 // Postback

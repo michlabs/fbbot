@@ -80,6 +80,12 @@ type rawAttachment struct {
 type rawPayload struct {
 	// URL of the attachment file
 	RawURL string `json:"url"`
+	RawCoordinates rawCoordinates `json:"coordinates"`
+}
+
+type rawCoordinates struct {
+	RawLat float64 `json:"lat"`
+	RawLong float64 `json:"long"`
 }
 
 func (cbMsg *rawCallbackMessage) Unbox() []interface{} {
@@ -137,9 +143,14 @@ func buildMessage(m rawMessageData) *Message {
 		case "file":
 			file := File{URL: attachment.RawPayload.RawURL}
 			msg.Files = append(msg.Files, file)
-			// case "location":
-			// 	location := Location{Coordinates: attachment.rawPayload.rawURL} // TODO
-			// 	msg.Location = location
+		case "location":
+			location := Location{
+				Coordinates: Coordinates{
+					Lat: attachment.RawPayload.RawCoordinates.RawLat,
+					Long: attachment.RawPayload.RawCoordinates.RawLong,
+				},
+			}
+			msg.Location = location
 		}
 
 	}
