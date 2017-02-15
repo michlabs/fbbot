@@ -249,6 +249,13 @@ func (b *Bot) sendTextMessage(r User, m *TextMessage) error {
 	return nil
 }
 
+// SendImage sends an image specified by an URL to the receipient
+func (b *Bot) SendImage(r User, url string) error {
+	m := NewImageMessage()
+	m.URL = url
+	return b.Send(r, m)
+}
+
 func (b *Bot) sendImageMessage(r User, m *ImageMessage) error {
 	payload := make(map[string]string)
 	payload["url"] = m.URL
