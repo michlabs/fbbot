@@ -145,7 +145,7 @@ func (b *Bot) handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		b.Logger.WithFields(logrus.Fields{"request": string(body)}).Info("New request")
+		b.Logger.WithFields(logrus.Fields{"request": string(body)}).Debug("New request")
 
 		var msg rawCallbackMessage
 		if err := json.Unmarshal(body, &msg); err != nil {
@@ -164,7 +164,7 @@ func (b *Bot) handle(w http.ResponseWriter, r *http.Request) {
 
 func (b *Bot) process(messages []interface{}) {
 	for _, m := range messages {
-		b.Logger.Infof("Message %+v", m)
+		b.Logger.Debug("Message %+v", m)
 		switch m := m.(type) {
 		case *Message:
 			if m.IsEcho {
