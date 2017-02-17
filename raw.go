@@ -79,12 +79,12 @@ type rawAttachment struct {
 // Attachment file
 type rawPayload struct {
 	// URL of the attachment file
-	RawURL string `json:"url"`
+	RawURL         string         `json:"url"`
 	RawCoordinates rawCoordinates `json:"coordinates"`
 }
 
 type rawCoordinates struct {
-	RawLat float64 `json:"lat"`
+	RawLat  float64 `json:"lat"`
 	RawLong float64 `json:"long"`
 }
 
@@ -146,7 +146,7 @@ func buildMessage(m rawMessageData) *Message {
 		case "location":
 			location := Location{
 				Coordinates: Coordinates{
-					Lat: attachment.RawPayload.RawCoordinates.RawLat,
+					Lat:  attachment.RawPayload.RawCoordinates.RawLat,
 					Long: attachment.RawPayload.RawCoordinates.RawLong,
 				},
 			}

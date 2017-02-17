@@ -315,7 +315,7 @@ func (b *Bot) sendGenericMessage(r User, m *GenericMessage) error {
 	attachment["payload"] = payload
 
 	data := make(map[string]interface{})
-	data["notification_type"] = m.Noti 
+	data["notification_type"] = m.Noti
 	data["recipient"] = map[string]string{"id": r.ID}
 	data["message"] = map[string]interface{}{"attachment": attachment}
 

@@ -2,8 +2,8 @@ package fbbot
 
 import (
 	"fmt"
-	"io/ioutil"
 	log "github.com/Sirupsen/logrus"
+	"io/ioutil"
 )
 
 // Event represents event triggered by state
@@ -22,6 +22,7 @@ type State interface {
 type BaseState struct {
 	Name string
 }
+
 func (s BaseState) Enter(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
 func (s BaseState) Process(bot *Bot, msg *Message) (e Event) { return e } // Do nothing
 func (s BaseState) Leave(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
@@ -30,7 +31,7 @@ type Dialog struct {
 	beginState State
 	endState   State
 
-	states map[State]bool // stores all states of this dialog
+	states   map[State]bool   // stores all states of this dialog
 	stateMap map[string]State // maps an user ID to his current state
 	transMap map[State]map[Event]State
 }
@@ -63,9 +64,9 @@ func (d *Dialog) Render() {
 
 	html := fmt.Sprintf(TEMPLATE, nodesHTML, edgesHTML, d.beginState, d.endState)
 	err := ioutil.WriteFile("dialog.html", []byte(html), 0644)
-    if err != nil {
-        log.Error("Could not write dialog.html file")
-    }
+	if err != nil {
+		log.Error("Could not write dialog.html file")
+	}
 }
 
 func (d *Dialog) AddStates(states ...State) {
@@ -118,7 +119,7 @@ func (d *Dialog) transition(bot *Bot, msg *Message, src State, event Event) {
 		d.resetState(msg.Sender.ID)
 		return
 	}
-	
+
 	dst, exist := d.transMap[src][event]
 	if !exist {
 		return
