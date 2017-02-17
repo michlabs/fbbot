@@ -234,6 +234,12 @@ func (b *Bot) SendText(r User, text string) error {
 	return b.Send(r, m)
 }
 
+func (b *Bot) SendImage(r User, url string) error {
+	m := NewImageMessage()
+	m.URL = url
+	return b.sendImageMessage(r, m)
+}
+
 func (b *Bot) sendTextMessage(r User, m *TextMessage) error {
 	data := make(map[string]interface{})
 	data["notification_type"] = m.Noti
