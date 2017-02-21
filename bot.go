@@ -52,6 +52,7 @@ func New(port int, verifyToken string, pageAccessToken string) *Bot {
 		Logger:          logrus.New(),
 	}
 	b.mux.HandleFunc(WebhookURL, b.handle)
+	bot = &b
 	return &b
 }
 
@@ -437,4 +438,53 @@ func (b *Bot) httppost(url string, data map[string]interface{}) ([]byte, error) 
 	}
 
 	return body, nil
+}
+
+func (b *Bot) fetchUserData(u *User) {
+	uri := fmt.Sprintf("%s/%s?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=%s", APIEndpoint, u.ID, b.pageAccessToken)
+	b.Logger.Debug("fetchUserData", uri)
+
+	resp, err := http.Get(uri)
+	if err != nil {
+		b.Logger.Error("failed to fetch user data: ", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		b.Logger.Error("failed to read response data")
+		return
+	}
+
+	if resp.StatusCode != 200 {
+		b.Logger.Error("failed to fetch user data: ", string(body))
+		return
+	}
+
+	var tmp struct {
+		FirstName	string `json:"first_name, omitempty"`
+		LastName	string `json:"last_name, omitempty"`
+		ProfilePic	string `json:"profile_pic, omitempty"`
+		Locale		string `json:"locale, omitempty"`
+		Timezone	int `json:"timezone, omitempty"`
+		Gender		string `json:"gender, omitempty"`
+		IsPaymentEnabled	bool `json:"is_payment_enabled, omitempty"` // Is the user eligible to receive messenger platform payment messages
+	}
+
+	if err := json.Unmarshal(body, &tmp); err != nil {
+		b.Logger.Error("failed to unmarshal response: ", err)
+		return
+	}
+
+	u.firstName = tmp.FirstName
+	u.lastName = tmp.LastName
+	u.profilePic = tmp.ProfilePic 
+	u.locale = tmp.Locale
+	u.timezone = tmp.Timezone
+	u.gender = tmp.Gender 
+	u.isPaymentEnabled = tmp.IsPaymentEnabled
+	u.isFetched = true
+
+	return
 }

@@ -1,5 +1,7 @@
 package fbbot
 
+var bot * Bot
+
 const (
 	WebhookURL      = "/webhook"
 	SendAPIEndpoint = "https://graph.facebook.com/v2.6/me/messages"
