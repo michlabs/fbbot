@@ -165,7 +165,7 @@ func (b *Bot) handle(w http.ResponseWriter, r *http.Request) {
 
 func (b *Bot) process(messages []interface{}) {
 	for _, m := range messages {
-		b.Logger.Debug("Message %+v", m)
+		b.Logger.Debugf("Message %+v", m)
 		switch m := m.(type) {
 		case *Message:
 			if m.IsEcho {
