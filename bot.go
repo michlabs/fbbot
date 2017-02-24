@@ -29,6 +29,9 @@ type Bot struct {
 	checkoutUpdateHandlers []CheckoutUpdateHandler
 	paymentHandlers        []PaymentHandler
 
+	LTMemory Memory // LTMemory will be persit across conversation
+	STMemory Memory // STMemory will be cleared for the user at the end of conversation
+
 	// Framework
 	Logger *logrus.Logger
 	mux    *http.ServeMux
@@ -52,6 +55,8 @@ func New(port int, verifyToken string, pageAccessToken string) *Bot {
 		Logger:          logrus.New(),
 	}
 	b.mux.HandleFunc(WebhookURL, b.handle)
+	b.LTMemory = NewEphemeralMemory()
+	b.STMemory = NewEphemeralMemory()
 	bot = &b
 	return &b
 }
