@@ -105,7 +105,7 @@ func (d *Dialog) Handle(bot *Bot, msg *Message) {
 	var event Event
 	state := d.getState(msg.Sender.ID)
 	if state == nil || state == d.endState {
-		bot.STMemory.DeleteAll(msg.Sender)
+		bot.STMemory.Delete(msg.Sender.ID)
 		d.setState(msg.Sender.ID, d.beginState)
 		state = d.getState(msg.Sender.ID)
 		event = state.Enter(bot, msg)

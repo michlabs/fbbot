@@ -16,7 +16,7 @@ func Register(name string, client Client) {
 	adapters[name] = client
 }
 
-func Use(adapter string, config map[string]string)  error {
+func Use(adapter string, config map[string]string) error {
 	if _, ok := adapters[adapter]; !ok {
 		return fmt.Errorf("Adapter %s is not exist", adapter)
 	}
@@ -28,4 +28,3 @@ func Use(adapter string, config map[string]string)  error {
 func Detect(msg string) (intent string, entities map[string][]string) {
 	return usedAdapter.Detect(msg)
 }
-

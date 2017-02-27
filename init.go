@@ -1,6 +1,6 @@
 package fbbot
 
-var bot * Bot
+var bot *Bot
 
 const (
 	WebhookURL      = "/webhook"

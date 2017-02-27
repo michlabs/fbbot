@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/michlabs/fbbot/memory"
 )
 
 type Bot struct {
@@ -29,8 +30,8 @@ type Bot struct {
 	checkoutUpdateHandlers []CheckoutUpdateHandler
 	paymentHandlers        []PaymentHandler
 
-	LTMemory Memory // LTMemory will be persit across conversation
-	STMemory Memory // STMemory will be cleared for the user at the end of conversation
+	LTMemory memory.Memory // LTMemory will be persit across conversation
+	STMemory memory.Memory // STMemory will be cleared for the user at the end of conversation
 
 	// Framework
 	Logger *logrus.Logger
@@ -55,8 +56,10 @@ func New(port int, verifyToken string, pageAccessToken string) *Bot {
 		Logger:          logrus.New(),
 	}
 	b.mux.HandleFunc(WebhookURL, b.handle)
-	b.LTMemory = NewEphemeralMemory()
-	b.STMemory = NewEphemeralMemory()
+	// b.LTMemory = NewEphemeralMemory()
+	// b.STMemory = NewEphemeralMemory()
+	b.LTMemory = memory.New("ephemeral")
+	b.STMemory = memory.New("ephemeral")
 	bot = &b
 	return &b
 }
@@ -468,13 +471,13 @@ func (b *Bot) fetchUserData(u *User) {
 	}
 
 	var tmp struct {
-		FirstName	string `json:"first_name, omitempty"`
-		LastName	string `json:"last_name, omitempty"`
-		ProfilePic	string `json:"profile_pic, omitempty"`
-		Locale		string `json:"locale, omitempty"`
-		Timezone	int `json:"timezone, omitempty"`
-		Gender		string `json:"gender, omitempty"`
-		IsPaymentEnabled	bool `json:"is_payment_enabled, omitempty"` // Is the user eligible to receive messenger platform payment messages
+		FirstName        string `json:"first_name, omitempty"`
+		LastName         string `json:"last_name, omitempty"`
+		ProfilePic       string `json:"profile_pic, omitempty"`
+		Locale           string `json:"locale, omitempty"`
+		Timezone         int    `json:"timezone, omitempty"`
+		Gender           string `json:"gender, omitempty"`
+		IsPaymentEnabled bool   `json:"is_payment_enabled, omitempty"` // Is the user eligible to receive messenger platform payment messages
 	}
 
 	if err := json.Unmarshal(body, &tmp); err != nil {
@@ -484,10 +487,10 @@ func (b *Bot) fetchUserData(u *User) {
 
 	u.firstName = tmp.FirstName
 	u.lastName = tmp.LastName
-	u.profilePic = tmp.ProfilePic 
+	u.profilePic = tmp.ProfilePic
 	u.locale = tmp.Locale
 	u.timezone = tmp.Timezone
-	u.gender = tmp.Gender 
+	u.gender = tmp.Gender
 	u.isPaymentEnabled = tmp.IsPaymentEnabled
 	u.isFetched = true
 
