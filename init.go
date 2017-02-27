@@ -1,6 +1,6 @@
 package fbbot
 
-var bot *Bot
+var bot *Bot // For using outside bot's method, for example: in User struct
 
 const (
 	WebhookURL      = "/webhook"

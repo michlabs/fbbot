@@ -49,7 +49,7 @@ func New(port int, verifyToken string, pageAccessToken string) *Bot {
 	b.mux.HandleFunc(WebhookURL, b.handle)
 	b.LTMemory = memory.New("ephemeral")
 	b.STMemory = memory.New("ephemeral")
-	bot = &b //TODO: Refactor
+	bot = &b // For using outside of bot methods (User struct)
 	return &b
 }
 
