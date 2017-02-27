@@ -11,16 +11,15 @@ const ResetEvent Event = "reset"
 const NilEvent Event = ""
 
 type Step interface {
+	Name() string
 	Enter(*Bot, *Message) Event
 	Process(*Bot, *Message) Event
 	Leave(*Bot, *Message) Event
 }
 
 // BaseStep is base struct for steps
-type BaseStep struct {
-	Name string
-}
-
+type BaseStep struct {}
+func (s BaseStep) Name() string { return "unnamed step" }
 func (s BaseStep) Enter(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
 func (s BaseStep) Process(bot *Bot, msg *Message) (e Event) { return e } // Do nothing
 func (s BaseStep) Leave(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
@@ -29,24 +28,18 @@ type Dialog struct {
 	beginStep Step
 	endStep   Step
 
-	steps   map[Step]bool   // stores all steps of this dialog
-	stepMap map[string]Step // maps an user ID to his current step
-	transMap map[Step]map[Event]Step
+	currentStepMap map[string]Step // maps an user ID to his current step
+	p2pTransMap map[Step]map[Event]Step
+	globalTransMap map[Event]Step
 }
 
 func NewDialog() *Dialog {
 	var d Dialog
-	d.steps = make(map[Step]bool)
-	d.stepMap = make(map[string]Step)
-	d.transMap = make(map[Step]map[Event]Step)
+	d.currentStepMap = make(map[string]Step)
+	d.p2pTransMap = make(map[Step]map[Event]Step)
+	d.globalTransMap = make(map[Event]Step)
 
 	return &d
-}
-
-func (d *Dialog) AddSteps(steps ...Step) {
-	for _, step := range steps {
-		d.steps[step] = true
-	}
 }
 
 func (d *Dialog) SetBeginStep(s Step) {
@@ -57,18 +50,32 @@ func (d *Dialog) SetEndStep(s Step) {
 	d.endStep = s
 }
 
-func (d *Dialog) AddTransition(src Step, event Event, dst Step) {
-	_, exist := d.transMap[src]
-	if !exist {
-		d.transMap[src] = make(map[Event]Step)
+func (d *Dialog) AddTransition(event Event, steps ...Step) {
+	n := len(steps)
+	if n == 0 {
+		return
 	}
-	d.transMap[src][event] = dst
+
+	if n == 1 { // global transition
+		d.globalTransMap[event] = steps[0]
+		return
+	}
+
+	// point-to-point transition
+	srcs := steps[:n-1]
+	dst := steps[n]
+	for _, src := range srcs {
+		d.addP2PTransition(src, event, dst)
+	}
 }
 
-func (d *Dialog) AddGlobalTransition(event Event, dst Step) {
-	for step := range d.steps {
-		d.AddTransition(step, event, dst)
+// Add point-to-point transition
+func (d *Dialog) addP2PTransition(src Step, event Event, dst Step) {
+	_, exist := d.p2pTransMap[src]
+	if !exist {
+		d.p2pTransMap[src] = make(map[Event]Step)
 	}
+	d.p2pTransMap[src][event] = dst
 }
 
 func (d *Dialog) Handle(bot *Bot, msg *Message) {
@@ -95,10 +102,19 @@ func (d *Dialog) transition(bot *Bot, msg *Message, src Step, event Event) {
 		return
 	}
 
-	dst, exist := d.transMap[src][event]
-	if !exist {
-		return
+	var dst Step
+	var exist bool
+	// check point-to-point transition first
+	dst, exist = d.p2pTransMap[src][event]
+	if !exist { // if doesn't have point-to-point transition
+		// then check global transition
+		dst, exist = d.globalTransMap[event]
+		if !exist { // if doesn't have global transition too
+			return // then do nothing
+		}
 	}
+
+	// if have destination step
 	src.Leave(bot, msg)
 	d.setStep(msg.Sender.ID, dst)
 	event = d.getStep(msg.Sender.ID).Enter(bot, msg)
@@ -106,13 +122,13 @@ func (d *Dialog) transition(bot *Bot, msg *Message, src Step, event Event) {
 }
 
 func (d *Dialog) setStep(user_id string, step Step) {
-	d.stepMap[user_id] = step
+	d.currentStepMap[user_id] = step
 }
 
 func (d *Dialog) getStep(user_id string) Step {
-	return d.stepMap[user_id]
+	return d.currentStepMap[user_id]
 }
 
 func (d *Dialog) resetStep(user_id string) {
-	delete(d.stepMap, user_id)
+	delete(d.currentStepMap, user_id)
 }
