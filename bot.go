@@ -38,15 +38,6 @@ type Bot struct {
 	mux    *http.ServeMux
 }
 
-type MessageHandler func(*Bot, *Message)
-type PostbackHandler func(*Bot, *Postback)
-type DeliveryHandler func(*Bot, *Delivery)
-type OptinHandler func(*Bot, *Optin)
-type ReadHandler func(*Bot, *Read)
-type EchoHandler func(*Bot, *Message)
-type CheckoutUpdateHandler func(*Bot, *CheckoutUpdate)
-type PaymentHandler func(*Bot, *Payment)
-
 func New(port int, verifyToken string, pageAccessToken string) *Bot {
 	var b Bot = Bot{
 		port:            port,
@@ -56,11 +47,9 @@ func New(port int, verifyToken string, pageAccessToken string) *Bot {
 		Logger:          logrus.New(),
 	}
 	b.mux.HandleFunc(WebhookURL, b.handle)
-	// b.LTMemory = NewEphemeralMemory()
-	// b.STMemory = NewEphemeralMemory()
 	b.LTMemory = memory.New("ephemeral")
 	b.STMemory = memory.New("ephemeral")
-	bot = &b
+	bot = &b //TODO: Refactor
 	return &b
 }
 
@@ -108,36 +97,36 @@ func (b *Bot) Run() {
 	b.Logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", b.port), b.mux))
 }
 
-func (b *Bot) HandleMessage(f MessageHandler) {
-	b.messageHandlers = append(b.messageHandlers, f)
+func (b *Bot) AddMessageHandler(h MessageHandler) {
+	b.messageHandlers = append(b.messageHandlers, h)
 }
 
-func (b *Bot) HandlePostback(f PostbackHandler) {
-	b.postbackHandlers = append(b.postbackHandlers, f)
+func (b *Bot) AddPostbackHandler(h PostbackHandler) {
+	b.postbackHandlers = append(b.postbackHandlers, h)
 }
 
-func (b *Bot) HandleDelivery(f DeliveryHandler) {
-	b.deliveryHandlers = append(b.deliveryHandlers, f)
+func (b *Bot) AddDeliveryHandler(h DeliveryHandler) {
+	b.deliveryHandlers = append(b.deliveryHandlers, h)
 }
 
-func (b *Bot) HandleOptin(f OptinHandler) {
-	b.optinHandlers = append(b.optinHandlers, f)
+func (b *Bot) AddOptinHandler(h OptinHandler) {
+	b.optinHandlers = append(b.optinHandlers, h)
 }
 
-func (b *Bot) HandleRead(f ReadHandler) {
-	b.readHandlers = append(b.readHandlers, f)
+func (b *Bot) AddReadHandler(h ReadHandler) {
+	b.readHandlers = append(b.readHandlers, h)
 }
 
-func (b *Bot) HandleEcho(f EchoHandler) {
-	b.echoHandlers = append(b.echoHandlers, f)
+func (b *Bot) AddEchoHandler(h EchoHandler) {
+	b.echoHandlers = append(b.echoHandlers, h)
 }
 
-func (b *Bot) HandleCheckoutUpdate(f CheckoutUpdateHandler) {
-	b.checkoutUpdateHandlers = append(b.checkoutUpdateHandlers, f)
+func (b *Bot) AddCheckoutUpdateHandler(h CheckoutUpdateHandler) {
+	b.checkoutUpdateHandlers = append(b.checkoutUpdateHandlers, h)
 }
 
-func (b *Bot) HandlePayment(f PaymentHandler) {
-	b.paymentHandlers = append(b.paymentHandlers, f)
+func (b *Bot) AddPaymentHandler(h PaymentHandler) {
+	b.paymentHandlers = append(b.paymentHandlers, h)
 }
 
 func (b *Bot) handle(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +143,7 @@ func (b *Bot) handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		b.Logger.WithFields(logrus.Fields{"request": string(body)}).Debug("New request")
+		b.Logger.WithFields(logrus.Fields{"request": string(body)}).Debug("New request:")
 
 		var msg rawCallbackMessage
 		if err := json.Unmarshal(body, &msg); err != nil {
@@ -177,49 +166,42 @@ func (b *Bot) process(messages []interface{}) {
 		switch m := m.(type) {
 		case *Message:
 			if m.IsEcho {
-				for _, f := range b.echoHandlers {
-					go f(b, m)
+				for _, h := range b.echoHandlers {
+					go h.HandleEcho(b, m)
 				}
 				break
 			}
-			for _, f := range b.messageHandlers {
-				go f(b, m)
+			for _, h := range b.messageHandlers {
+				go h.HandleMessage(b, m)
 			}
 		case *Postback:
-			for _, f := range b.postbackHandlers {
-				go f(b, m)
+			for _, h := range b.postbackHandlers {
+				go h.HandlePostback(b, m)
 			}
 		case *Delivery:
-			for _, f := range b.deliveryHandlers {
-				go f(b, m)
+			for _, h := range b.deliveryHandlers {
+				go h.HandleDelivery(b, m)
 			}
 		case *Optin:
-			for _, f := range b.optinHandlers {
-				go f(b, m)
+			for _, h := range b.optinHandlers {
+				go h.HandleOptin(b, m)
 			}
 		case *Read:
-			for _, f := range b.readHandlers {
-				go f(b, m)
+			for _, h := range b.readHandlers {
+				go h.HandleRead(b, m)
 			}
 		case *CheckoutUpdate:
-			for _, f := range b.checkoutUpdateHandlers {
-				go f(b, m)
+			for _, h := range b.checkoutUpdateHandlers {
+				go h.HandleCheckoutUpdate(b, m)
 			}
 		case *Payment:
-			for _, f := range b.paymentHandlers {
-				go f(b, m)
+			for _, h := range b.paymentHandlers {
+				go h.HandlePayment(b, m)
 			}
 		default:
 			b.Logger.Error("Unknown message type")
 		}
 	}
-}
-
-// TODO: Refactor
-func (b *Bot) Process(message interface{}) {
-	var messages []interface{}
-	messages = append(messages, message)
-	b.process(messages)
 }
 
 // TODO: Support other message types
