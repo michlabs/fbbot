@@ -1,9 +1,7 @@
 package fbbot
 
 import (
-	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"io/ioutil"
 )
 
 // Event represents event triggered by state
@@ -43,30 +41,6 @@ func NewDialog() *Dialog {
 	d.transMap = make(map[State]map[Event]State)
 
 	return &d
-}
-
-func (d *Dialog) Render() {
-	nodes := make(map[State]bool)
-	var edgesHTML string = ""
-	for src, values := range d.transMap {
-		nodes[src] = true
-		for event, dst := range values {
-			edgesHTML = edgesHTML + fmt.Sprintf("g.setEdge(\"%s\", \"%s\", {label: \"%s\" });\n", src, dst, event)
-			nodes[dst] = true
-		}
-	}
-
-	var nodesHTML string = `var states = [`
-	for node, _ := range nodes {
-		nodesHTML = nodesHTML + fmt.Sprintf(`"%s", `, node)
-	}
-	nodesHTML = nodesHTML + `];`
-
-	html := fmt.Sprintf(TEMPLATE, nodesHTML, edgesHTML, d.beginState, d.endState)
-	err := ioutil.WriteFile("dialog.html", []byte(html), 0644)
-	if err != nil {
-		log.Error("Could not write dialog.html file")
-	}
 }
 
 func (d *Dialog) AddStates(states ...State) {
