@@ -27,6 +27,10 @@ func (u *User) LastName() string {
 	return u.lastName
 }
 
+func (u *User) FullName() string {
+	return u.FirstName() + " " + u.LastName()
+}
+
 func (u *User) ProfilePic() string {
 	if !u.isFetched {
 		bot.fetchUserData(u)
