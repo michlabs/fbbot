@@ -104,7 +104,7 @@ func (d *Dialog) HandlePostback(bot *Bot, pbk *Postback) {
 
 func (d *Dialog) transition(bot *Bot, msg *Message, src Step, event Event) {
 	if event == ResetEvent {
-		d.resetStep(msg.Sender.ID)
+		d.Reset(msg.Sender.ID)
 		return
 	}
 
@@ -135,6 +135,6 @@ func (d *Dialog) getStep(user_id string) Step {
 	return d.currentStepMap[user_id]
 }
 
-func (d *Dialog) resetStep(user_id string) {
+func (d *Dialog) Reset(user_id string) {
 	delete(d.currentStepMap, user_id)
 }
