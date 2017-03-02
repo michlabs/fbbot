@@ -31,6 +31,12 @@ type Dialog struct {
 	currentStepMap map[string]Step // maps an user ID to his current step
 	p2pTransMap map[Step]map[Event]Step
 	globalTransMap map[Event]Step
+
+	// Hooks
+	PreHandleMessageHook func(*Bot, *Message) bool
+	PostHandleMessageHook func(*Bot, *Message)
+	PreHandlePostbackHook func(*Bot, *Postback) bool
+	PostHandlePostbackHook func(*Bot, *Postback)
 }
 
 func NewDialog() *Dialog {
@@ -78,8 +84,14 @@ func (d *Dialog) addP2PTransition(src Step, event Event, dst Step) {
 	d.p2pTransMap[src][event] = dst
 }
 
-// func (d *Dialog) Handle(bot *Bot, msg *Message) {
 func (d *Dialog) HandleMessage(bot *Bot, msg *Message) {
+	if d.PreHandleMessageHook != nil {
+		isBreak := d.PreHandleMessageHook(bot, msg)
+		if isBreak {
+			return
+		}
+	}
+
 	if d.beginStep == nil || d.endStep == nil {
 		log.Fatal("BeginStep and EndStep are not set.")
 	}
@@ -95,11 +107,26 @@ func (d *Dialog) HandleMessage(bot *Bot, msg *Message) {
 		event = step.Process(bot, msg)
 	}
 	d.transition(bot, msg, step, event)
+
+	if d.PostHandleMessageHook != nil {
+		d.PostHandleMessageHook(bot, msg)
+	}
 }
 
 func (d *Dialog) HandlePostback(bot *Bot, pbk *Postback) {
+	if d.PreHandlePostbackHook != nil {
+		isBreak := d.PreHandlePostbackHook(bot, pbk)
+		if isBreak {
+			return
+		}
+	}
+
 	msg := &Message{Sender: pbk.Sender, Text: pbk.Payload}
 	d.HandleMessage(bot, msg)
+
+	if d.PostHandlePostbackHook != nil {
+		d.PostHandlePostbackHook(bot, pbk)
+	}
 }
 
 func (d *Dialog) transition(bot *Bot, msg *Message, src Step, event Event) {
