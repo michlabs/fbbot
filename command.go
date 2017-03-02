@@ -19,6 +19,11 @@ func (h *Commander) Add(name string, f func(*Bot, *Message, string)) {
 }
 
 func (h *Commander) HandleEcho(bot *Bot, echoMsg *Message) {
+	// Do not handle echo from bot itself
+	if echoMsg.AppID > 0 {
+		return
+	}
+
 	name, param := h.extractCommand(echoMsg.Text)
 	f, ok := h.mapCommandFunc[name]
 	if ok {
