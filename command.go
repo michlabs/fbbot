@@ -40,4 +40,3 @@ func (h *Commander) extractCommand(msg string) (name string, param string) {
 	}
 	return name, param
 }
-

@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
 	"github.com/michlabs/fbbot"
@@ -16,7 +16,7 @@ func main() {
 	bot.Run()
 }
 
-type EchoEcho struct {}
+type EchoEcho struct{}
 
 func (e EchoEcho) HandleMessage(bot *fbbot.Bot, msg *fbbot.Message) {
 	// Echo... echo...

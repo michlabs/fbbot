@@ -18,8 +18,9 @@ type Step interface {
 }
 
 // BaseStep is base struct for steps
-type BaseStep struct {}
-func (s BaseStep) Name() string { return "unnamed step" }
+type BaseStep struct{}
+
+func (s BaseStep) Name() string                             { return "unnamed step" }
 func (s BaseStep) Enter(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
 func (s BaseStep) Process(bot *Bot, msg *Message) (e Event) { return e } // Do nothing
 func (s BaseStep) Leave(bot *Bot, msg *Message) (e Event)   { return e } // Do nothing
@@ -29,13 +30,13 @@ type Dialog struct {
 	endStep   Step
 
 	currentStepMap map[string]Step // maps an user ID to his current step
-	p2pTransMap map[Step]map[Event]Step
+	p2pTransMap    map[Step]map[Event]Step
 	globalTransMap map[Event]Step
 
 	// Hooks
-	PreHandleMessageHook func(*Bot, *Message) bool
-	PostHandleMessageHook func(*Bot, *Message)
-	PreHandlePostbackHook func(*Bot, *Postback) bool
+	PreHandleMessageHook   func(*Bot, *Message) bool
+	PostHandleMessageHook  func(*Bot, *Message)
+	PreHandlePostbackHook  func(*Bot, *Postback) bool
 	PostHandlePostbackHook func(*Bot, *Postback)
 }
 

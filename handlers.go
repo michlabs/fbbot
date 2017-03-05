@@ -1,7 +1,7 @@
 package fbbot
 
-type MessageHandler interface { 
-	HandleMessage(*Bot, *Message) 
+type MessageHandler interface {
+	HandleMessage(*Bot, *Message)
 }
 
 type PostbackHandler interface {
