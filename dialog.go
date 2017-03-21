@@ -166,3 +166,22 @@ func (d *Dialog) getStep(user_id string) Step {
 func (d *Dialog) Reset(user_id string) {
 	delete(d.currentStepMap, user_id)
 }
+
+// This function used for moving dialog to any step.
+// It should be used with caution for adhoc cases only, since it breaks already defined dialog flow.
+func (d *Dialog) Move(msg *Message, dst Step) {
+	// Get out of current step nicely
+	currentStep := d.getStep(msg.Sender.ID)
+	if currentStep != nil {
+		currentStep.Leave(bot, msg)
+	}
+
+	if dst == nil || dst == d.endStep {
+		// Follow current logic for end step
+		bot.STMemory.Delete(msg.Sender.ID)
+		dst = d.beginStep
+	}
+	d.setStep(msg.Sender.ID, dst)
+	event := dst.Enter(bot, msg)
+	d.transition(bot, msg, dst, event)
+}
