@@ -4,13 +4,13 @@ type User struct {
 	ID               string `json:"id"`
 	PhoneNumber      string `json:"phone_number,omitempty"`
 	isFetched        bool
-	firstName        string `json:"first_name, omitempty"`
-	lastName         string `json:"last_name, omitempty"`
-	profilePic       string `json:"profile_pic, omitempty"`
-	locale           string `json:"locale, omitempty"`
-	timezone         int    `json:"timezone, omitempty"`
-	gender           string `json:"gender, omitempty"`
-	isPaymentEnabled bool   `json:"is_payment_enabled, omitempty"` // Is the user eligible to receive messenger platform payment messages
+	firstName        string 
+	lastName         string 
+	profilePic       string 
+	locale           string 
+	timezone         int    
+	gender           string 
+	isPaymentEnabled bool   // Is the user eligible to receive messenger platform payment messages
 }
 
 func (u *User) FirstName() string {

@@ -157,7 +157,8 @@ func (b *Bot) handle(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	fmt.Fprintf(w, "Just support GET, POST methods", http.StatusMethodNotAllowed)
+
+	http.Error(w, "Just support GET, POST methods", http.StatusMethodNotAllowed)
 }
 
 func (b *Bot) process(messages []interface{}) {
