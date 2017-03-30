@@ -216,6 +216,8 @@ func (b *Bot) Send(r User, m interface{}) error {
 		return b.sendButtonMessage(r, m)
 	case *GenericMessage:
 		return b.sendGenericMessage(r, m)
+	case *QuickRepliesMessage:
+		return b.sendQuickRepliesMessage(r, m)
 	default:
 		return errors.New("unknown message type")
 	}
@@ -314,6 +316,20 @@ func (b *Bot) sendGenericMessage(r User, m *GenericMessage) error {
 	_, err := b.httppost(SendAPIEndpoint, data)
 	if err != nil {
 		b.Logger.WithFields(logrus.Fields{"data": data, "error": err}).Error("Failed to send message")
+		return err
+	}
+
+	return nil
+}
+
+func (b *Bot) sendQuickRepliesMessage(r User, m *QuickRepliesMessage) error {
+	data := make(map[string]interface{})
+	data["recipient"] = map[string]string{"id": r.ID}
+	data["message"] = m
+
+	_, err := b.httppost(SendAPIEndpoint, data)
+	if err != nil {
+		b.Logger.Errorf("Failed to send message. Error: %s\nData:%#v", err.Error(), data)
 		return err
 	}
 

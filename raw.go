@@ -58,6 +58,9 @@ type rawMessage struct {
 	// rawText is text of message
 	RawText string `json:"text"`
 
+	// for quick reply
+	RawQuickreply rawQuickreply `json:"quick_reply"`
+
 	RawIsEcho bool `json:"is_echo"`
 
 	RawAppID int64 `json:"app_id"`
@@ -86,6 +89,10 @@ type rawPayload struct {
 type rawCoordinates struct {
 	RawLat  float64 `json:"lat"`
 	RawLong float64 `json:"long"`
+}
+
+type rawQuickreply struct {
+	Payload string `json:"payload"`
 }
 
 func (cbMsg *rawCallbackMessage) Unbox() []interface{} {
@@ -129,6 +136,7 @@ func buildMessage(m rawMessageData) *Message {
 	msg.Timestamp = m.RawTimestamp
 	msg.IsEcho = m.RawMessage.RawIsEcho
 	msg.AppID = m.RawMessage.RawAppID
+	msg.Quickreply = Quickreply{Payload: m.RawMessage.RawQuickreply.Payload}
 	for _, attachment := range m.RawMessage.RawAttachments {
 		switch attachment.RawType {
 		case "image":

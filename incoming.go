@@ -2,19 +2,24 @@ package fbbot
 
 // Message represents a message sent to your page.
 type Message struct {
-	ID        string
-	Page      Page
-	Sender    User
-	Text      string
-	IsEcho    bool
-	AppID     int64
-	Images    []Image
-	Videos    []Video
-	Audios    []Audio
-	Files     []File
-	Location  Location
-	Seq       int
-	Timestamp int64
+	ID         string
+	Page       Page
+	Sender     User
+	Text       string
+	IsEcho     bool
+	AppID      int64
+	Images     []Image
+	Videos     []Video
+	Audios     []Audio
+	Files      []File
+	Location   Location
+	Seq        int
+	Timestamp  int64
+	Quickreply Quickreply
+}
+
+type Quickreply struct {
+	Payload string
 }
 
 type Image struct {
