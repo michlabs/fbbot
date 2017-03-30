@@ -4,12 +4,12 @@ type User struct {
 	ID               string `json:"id"`
 	PhoneNumber      string `json:"phone_number,omitempty"`
 	isFetched        bool
-	firstName        string 
-	lastName         string 
-	profilePic       string 
-	locale           string 
-	timezone         int    
-	gender           string 
+	firstName        string
+	lastName         string
+	profilePic       string
+	locale           string
+	timezone         int
+	gender           string
 	isPaymentEnabled bool   // Is the user eligible to receive messenger platform payment messages
 }
 

@@ -64,7 +64,7 @@ func (m *ButtonMessage) AddPostbackButton(title, payload string) {
 // Button
 type Button struct {
 	Type    string `json:"type"` // web_url or postback
-	Title   string `json:"title"`
+	Title   string `json:"title,omitempty"`
 	URL     string `json:"url,omitempty"`
 	Payload string `json:"payload,omitempty"`
 }
@@ -277,4 +277,30 @@ type Adjustment struct {
 
 	// Amount is adjusted amount
 	Amout float64
+}
+
+type QuickRepliesMessage struct {
+	Text  string             `json:"text"`
+	Items []QuickRepliesItem `json:"quick_replies"`
+}
+
+type QuickRepliesItem struct {
+	ContentType string `json:"content_type"`        // 'text' or 'location'
+	Title       string `json:"title,omitempty"`     // empty when ContentType='location'
+	Payload     string `json:"payload,omitempty"`   // empty when ContentType='location'
+	ImageURL    string `json:"image_url,omitempty"` // optional, empty when ContentType='location'
+}
+
+func NewQuickRepliesText(title string, payload string) QuickRepliesItem {
+	return QuickRepliesItem{
+		ContentType: "text",
+		Title:       title,
+		Payload:     payload,
+	}
+}
+
+func NewQuickRepliesLocation() QuickRepliesItem {
+	return QuickRepliesItem{
+		ContentType: "location",
+	}
 }
