@@ -8,9 +8,9 @@ type User struct {
 	lastName         string
 	profilePic       string
 	locale           string
-	timezone         int
+	timezone         float32
 	gender           string
-	isPaymentEnabled bool   // Is the user eligible to receive messenger platform payment messages
+	isPaymentEnabled bool // Is the user eligible to receive messenger platform payment messages
 }
 
 func (u *User) FirstName() string {
@@ -45,7 +45,7 @@ func (u *User) Locale() string {
 	return u.locale
 }
 
-func (u *User) Timezone() int {
+func (u *User) Timezone() float32 {
 	if !u.isFetched {
 		bot.fetchUserData(u)
 	}

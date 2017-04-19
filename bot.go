@@ -470,13 +470,13 @@ func (b *Bot) fetchUserData(u *User) {
 	}
 
 	var tmp struct {
-		FirstName        string `json:"first_name, omitempty"`
-		LastName         string `json:"last_name, omitempty"`
-		ProfilePic       string `json:"profile_pic, omitempty"`
-		Locale           string `json:"locale, omitempty"`
-		Timezone         int    `json:"timezone, omitempty"`
-		Gender           string `json:"gender, omitempty"`
-		IsPaymentEnabled bool   `json:"is_payment_enabled, omitempty"` // Is the user eligible to receive messenger platform payment messages
+		FirstName        string  `json:"first_name, omitempty"`
+		LastName         string  `json:"last_name, omitempty"`
+		ProfilePic       string  `json:"profile_pic, omitempty"`
+		Locale           string  `json:"locale, omitempty"`
+		Timezone         float32 `json:"timezone, omitempty"`
+		Gender           string  `json:"gender, omitempty"`
+		IsPaymentEnabled bool    `json:"is_payment_enabled, omitempty"` // Is the user eligible to receive messenger platform payment messages
 	}
 
 	if err := json.Unmarshal(body, &tmp); err != nil {
