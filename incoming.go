@@ -24,7 +24,7 @@ type Quickreply struct {
 
 type Image struct {
 	URL string
-	StickerId int64
+	StickerID int64
 }
 
 type Video struct {
