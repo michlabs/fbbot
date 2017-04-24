@@ -84,6 +84,7 @@ type rawPayload struct {
 	// URL of the attachment file
 	RawURL         string         `json:"url"`
 	RawCoordinates rawCoordinates `json:"coordinates"`
+	StickerID int64 `json:"sticker_id"`
 }
 
 type rawCoordinates struct {
@@ -140,7 +141,7 @@ func buildMessage(m rawMessageData) *Message {
 	for _, attachment := range m.RawMessage.RawAttachments {
 		switch attachment.RawType {
 		case "image":
-			image := Image{URL: attachment.RawPayload.RawURL}
+			image := Image{URL: attachment.RawPayload.RawURL, StickerID: attachment.RawPayload.StickerID}
 			msg.Images = append(msg.Images, image)
 		case "video":
 			video := Video{URL: attachment.RawPayload.RawURL}
