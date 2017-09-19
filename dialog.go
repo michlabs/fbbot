@@ -70,7 +70,7 @@ func (d *Dialog) AddTransition(event Event, steps ...Step) {
 
 	// point-to-point transition
 	srcs := steps[:n-1]
-	dst := steps[n]
+	dst := steps[n-1]
 	for _, src := range srcs {
 		d.addP2PTransition(src, event, dst)
 	}
