@@ -2,14 +2,15 @@ package fbbot
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/Sirupsen/logrus"
 	"github.com/michlabs/fbbot/memory"
+	"io/ioutil"
+	"net/http"
 )
 
 type Bot struct {
@@ -17,6 +18,7 @@ type Bot struct {
 	Page            Page // TODO: How to find out it?
 	port            int
 	verifyToken     string
+	appSecret       string
 	pageAccessToken string
 	greeting_text   string
 
@@ -38,10 +40,11 @@ type Bot struct {
 	mux    *http.ServeMux
 }
 
-func New(port int, verifyToken string, pageAccessToken string) *Bot {
+func New(port int, verifyToken string, appSecret string, pageAccessToken string) *Bot {
 	var b Bot = Bot{
 		port:            port,
 		verifyToken:     verifyToken,
+		appSecret:       appSecret,
 		pageAccessToken: pageAccessToken,
 		mux:             http.NewServeMux(),
 		Logger:          logrus.New(),
@@ -142,8 +145,13 @@ func (b *Bot) handle(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to read resquest body", http.StatusInternalServerError)
 			return
 		}
-
 		b.Logger.WithFields(logrus.Fields{"request": string(body)}).Debug("New request:")
+
+		// Verify message signature
+		if !b.verifySignature(body, r.Header.Get("X-Hub-Signature")[5:]) {
+			b.Logger.Error("invalid request signature")
+			return
+		}
 
 		var msg rawCallbackMessage
 		if err := json.Unmarshal(body, &msg); err != nil {
@@ -520,4 +528,16 @@ func (b *Bot) AddPersistentMenus(menus ...*Menu) error {
 	data["persistent_menu"] = menus
 	_, err := b.httppost(ProfileEndpoint, data)
 	return err
+}
+
+func (b *Bot) verifySignature(content []byte, signature string) bool {
+	if signature == "" {
+		return false
+	}
+	mac := hmac.New(sha1.New, []byte(b.appSecret))
+	mac.Write(content)
+	if fmt.Sprintf("%x", mac.Sum(nil)) != signature {
+		return false
+	}
+	return true
 }
