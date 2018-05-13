@@ -514,3 +514,10 @@ func (b *Bot) EnableGetStarted(payload string) error {
 	_, err := b.httppost(ProfileEndpoint, data)
 	return err
 }
+
+func (b *Bot) AddPersistentMenus(menus ...*Menu) error {
+	data := make(map[string]interface{})
+	data["persistent_menu"] = menus
+	_, err := b.httppost(ProfileEndpoint, data)
+	return err
+}
