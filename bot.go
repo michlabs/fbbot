@@ -502,3 +502,15 @@ func (b *Bot) fetchUserData(u *User) {
 
 	return
 }
+
+// EnableGetStarted enables the Get Started button at the first conversation
+// payload will be sent back to the bot when user clicks on the button.
+func (b *Bot) EnableGetStarted(payload string) error {
+	getstarted := make(map[string]string)
+	getstarted["payload"] = payload
+
+	data := make(map[string]interface{})
+	data["get_started"] = getstarted
+	_, err := b.httppost(ProfileEndpoint, data)
+	return err
+}
