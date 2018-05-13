@@ -230,6 +230,7 @@ func (b *Bot) SendText(r User, text string) error {
 
 func (b *Bot) sendTextMessage(r User, m *TextMessage) error {
 	data := make(map[string]interface{})
+	data["messaging_type"] = "RESPONSE"
 	data["notification_type"] = m.Noti
 	data["recipient"] = map[string]string{"id": r.ID}
 	data["message"] = map[string]string{"text": m.Text}
@@ -262,6 +263,7 @@ func (b *Bot) sendImageMessage(r User, m *ImageMessage) error {
 	message["attachment"] = attachment
 
 	data := make(map[string]interface{})
+	data["messaging_type"] = "RESPONSE"
 	data["recipient"] = r
 	data["message"] = message
 	data["notification_type"] = m.Noti
@@ -286,6 +288,7 @@ func (b *Bot) sendButtonMessage(r User, m *ButtonMessage) error {
 	attachment["type"] = "template"
 	attachment["payload"] = payload
 
+	data["messaging_type"] = "RESPONSE"
 	data["notification_type"] = m.Noti
 	data["recipient"] = map[string]string{"id": r.ID}
 	data["message"] = map[string]interface{}{"attachment": attachment}
@@ -309,6 +312,7 @@ func (b *Bot) sendGenericMessage(r User, m *GenericMessage) error {
 	attachment["payload"] = payload
 
 	data := make(map[string]interface{})
+	data["messaging_type"] = "RESPONSE"
 	data["notification_type"] = m.Noti
 	data["recipient"] = map[string]string{"id": r.ID}
 	data["message"] = map[string]interface{}{"attachment": attachment}
@@ -324,6 +328,7 @@ func (b *Bot) sendGenericMessage(r User, m *GenericMessage) error {
 
 func (b *Bot) sendQuickRepliesMessage(r User, m *QuickRepliesMessage) error {
 	data := make(map[string]interface{})
+	data["messaging_type"] = "RESPONSE"
 	data["recipient"] = map[string]string{"id": r.ID}
 	data["message"] = m
 
@@ -338,6 +343,7 @@ func (b *Bot) sendQuickRepliesMessage(r User, m *QuickRepliesMessage) error {
 
 func (b *Bot) TypingOn(r User) error {
 	data := make(map[string]interface{})
+	data["messaging_type"] = "RESPONSE"
 	data["recipient"] = r
 	data["sender_action"] = "typing_on"
 
@@ -352,6 +358,7 @@ func (b *Bot) TypingOn(r User) error {
 
 func (b *Bot) TypingOff(r User) error {
 	data := make(map[string]interface{})
+	data["messaging_type"] = "RESPONSE"
 	data["recipient"] = r
 	data["sender_action"] = "typing_off"
 
