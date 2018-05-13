@@ -6,6 +6,7 @@ const (
 	WebhookURL      = "/webhook"
 	SendAPIEndpoint = "https://graph.facebook.com/v2.6/me/messages"
 	APIEndpoint     = "https://graph.facebook.com/v2.6"
+	ProfileEndpoint = "https://graph.facebook.com/v2.6/me/messenger_profile"
 
 	// Notification type
 	NotiRegular    string = "REGULAR"     // will emit a sound/vibration and a phone notification
