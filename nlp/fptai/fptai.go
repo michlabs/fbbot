@@ -3,7 +3,7 @@ package fptai
 import (
 	log "github.com/sirupsen/logrus"
 	fptai "github.com/fpt-corp/fptai-sdk-go"
-	"github.com/michlabs/fbbot/nlp"
+	"github.com/andboson/fbbot/nlp"
 )
 
 type FPTAI struct {

@@ -1,8 +1,8 @@
 package wit
 
 import (
-	"github.com/michlabs/fbbot/nlp"
-	"github.com/michlabs/gowit"
+	"github.com/andboson/fbbot/nlp"
+	"github.com/andboson/gowit"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/michlabs/fbbot"
+	"github.com/andboson/fbbot"
 )
 
 const PORT int = 8080

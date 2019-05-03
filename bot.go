@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"github.com/michlabs/fbbot/memory"
+	"github.com/andboson/fbbot/memory"
 	"io/ioutil"
 	"net/http"
 )
