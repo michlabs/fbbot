@@ -1,7 +1,7 @@
 package fbbot
 
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // rawCallbackMessage is data you will receive at your webhook

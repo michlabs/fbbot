@@ -1,7 +1,7 @@
 package fbbot
 
 import (
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // Event represents event triggered in a step
