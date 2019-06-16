@@ -3,7 +3,7 @@ package wit
 import (
 	"github.com/michlabs/fbbot/nlp"
 	"github.com/michlabs/gowit"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type Adapter struct {
