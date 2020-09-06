@@ -7,10 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/michlabs/fbbot/memory"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/michlabs/fbbot/memory"
+	"github.com/sirupsen/logrus"
 )
 
 type Bot struct {
@@ -397,26 +398,26 @@ func (b *Bot) MarkSeen(r User) error {
 func (b *Bot) Subscribe() error {
 	data := make(map[string]interface{})
 	data["subscribed_fields"] = []string{
-		"message_mention", 
-		"messages", 
-		"message_reactions", 
-		"messaging_account_linking", 
+		"message_mention",
+		"messages",
+		"message_reactions",
+		"messaging_account_linking",
 		"messaging_checkout_updates",
-		"message_echoes", 
-		"message_deliveries", 
-		"messaging_optins", 
-		"messaging_optouts", 
-		"messaging_payments", 
-		"messaging_postbacks", 
-		"messaging_pre_checkouts", 
-		"message_reads", 
-		"messaging_referrals", 
-		"messaging_handovers", 
-		"messaging_policy_enforcement", 
-		"messaging_page_feedback", 
-		"messaging_appointments", 
-		"messaging_direct_sends", 
-		"messaging_fblogin_account_linking"
+		"message_echoes",
+		"message_deliveries",
+		"messaging_optins",
+		"messaging_optouts",
+		"messaging_payments",
+		"messaging_postbacks",
+		"messaging_pre_checkouts",
+		"message_reads",
+		"messaging_referrals",
+		"messaging_handovers",
+		"messaging_policy_enforcement",
+		"messaging_page_feedback",
+		"messaging_appointments",
+		"messaging_direct_sends",
+		"messaging_fblogin_account_linking",
 		"messaging_feedback",
 	}
 	if resp, err := b.httppost(APIEndpoint+"/me/subscribed_apps", data); err != nil {
