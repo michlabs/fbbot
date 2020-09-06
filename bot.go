@@ -70,7 +70,7 @@ func (b *Bot) verify(w http.ResponseWriter, r *http.Request) {
 
 func (b *Bot) Run() {
 	if err := b.Subscribe(); err != nil {
-		b.Logger.Fatal("Failed to subscribe to the page")
+		b.Logger.Warn("Failed to subscribe to the page")
 	}
 	if len(b.messageHandlers) == 0 {
 		b.Logger.Warn("Message Handler is missing")
